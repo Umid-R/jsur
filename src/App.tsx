@@ -2,6 +2,8 @@ import { useState } from 'react';
 import HomePage from './pages/HomePage';
 import LogPage from './pages/LogPage';
 import StatsPage from './pages/StatsPage';
+import CalendarPage from './pages/CalendarPage';
+import ProfilePage from './pages/ProfilePage';
 import BottomNav from './components/BottomNav';
 
 type Page = 'home' | 'log' | 'stats' | 'calendar' | 'profile';
@@ -18,9 +20,9 @@ function App() {
       case 'stats':
         return <StatsPage />;
       case 'calendar':
-        return <div className="p-6 text-center text-gray-400">Calendar - Coming Soon</div>;
+        return <CalendarPage />;
       case 'profile':
-        return <div className="p-6 text-center text-gray-400">Profile - Coming Soon</div>;
+        return <ProfilePage />;
       default:
         return <HomePage />;
     }

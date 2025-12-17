@@ -1,3 +1,5 @@
+import { TrendingDown, AlertCircle, Target } from 'lucide-react';
+
 export default function StatsPage() {
   const qazaBacklog = [
     { name: 'Fajr', count: 45 },
@@ -9,6 +11,8 @@ export default function StatsPage() {
 
   const totalQaza = qazaBacklog.reduce((sum, prayer) => sum + prayer.count, 0);
   const maxCount = Math.max(...qazaBacklog.map(p => p.count));
+  const avgQaza = Math.round(totalQaza / qazaBacklog.length);
+  const clearedThisWeek = 7;
 
   const trendData = [
     { week: 'Week 1', count: 180 },
@@ -42,32 +46,51 @@ export default function StatsPage() {
           <p className="text-gray-400 text-base">Your prayer patterns and progress</p>
         </header>
 
-        <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-2xl p-6 border border-teal-700/30">
-          <h2 className="text-xl font-semibold mb-6">Qaza Backlog</h2>
+        <div className="grid grid-cols-3 gap-3">
+          <div className="bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-xl p-4 border border-emerald-700/30">
+            <div className="text-emerald-400 text-xs font-semibold uppercase mb-2">Cleared</div>
+            <div className="text-2xl font-bold text-emerald-300">{clearedThisWeek}</div>
+            <p className="text-xs text-gray-400">This week</p>
+          </div>
+          <div className="bg-gradient-to-br from-teal-900/30 to-teal-800/20 rounded-xl p-4 border border-teal-700/30">
+            <div className="text-teal-400 text-xs font-semibold uppercase mb-2">Average</div>
+            <div className="text-2xl font-bold text-teal-300">{avgQaza}</div>
+            <p className="text-xs text-gray-400">Per prayer</p>
+          </div>
+          <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-xl p-4 border border-gray-700/30">
+            <div className="text-gray-400 text-xs font-semibold uppercase mb-2">Total</div>
+            <div className="text-2xl font-bold text-gray-200">{totalQaza}</div>
+            <p className="text-xs text-gray-500">Remaining</p>
+          </div>
+        </div>
 
-          <div className="text-center mb-8">
-            <div className="text-6xl font-bold text-emerald-500 mb-2">{totalQaza}</div>
-            <p className="text-gray-400 text-sm">Total Qaza Remaining</p>
+        <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-2xl p-6 border border-teal-700/30">
+          <div className="flex items-center gap-2 mb-6">
+            <Target size={20} className="text-emerald-400" />
+            <h2 className="text-lg font-semibold">Qaza Backlog</h2>
           </div>
 
           <div className="space-y-4">
             {qazaBacklog.map((prayer) => (
               <div key={prayer.name} className="flex items-center gap-3">
-                <span className="text-white text-base w-20">{prayer.name}</span>
-                <div className="flex-1 bg-gray-800/50 rounded-full h-2.5 overflow-hidden">
+                <span className="text-gray-300 text-sm font-medium w-16">{prayer.name}</span>
+                <div className="flex-1 bg-gray-800/50 rounded-full h-3 overflow-hidden">
                   <div
-                    className="bg-emerald-500 h-full rounded-full transition-all"
+                    className="bg-gradient-to-r from-emerald-500 to-teal-500 h-full transition-all rounded-full"
                     style={{ width: `${(prayer.count / maxCount) * 100}%` }}
                   ></div>
                 </div>
-                <span className="text-gray-400 text-base w-12 text-right">{prayer.count}</span>
+                <span className="text-emerald-400 text-sm font-semibold w-12 text-right">{prayer.count}</span>
               </div>
             ))}
           </div>
         </div>
 
         <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-2xl p-6 border border-teal-700/30">
-          <h2 className="text-xl font-semibold mb-6">Qaza Trend</h2>
+          <div className="flex items-center gap-2 mb-6">
+            <TrendingDown size={20} className="text-emerald-400" />
+            <h2 className="text-lg font-semibold">Qaza Trend</h2>
+          </div>
 
           <div className="relative" style={{ height: `${chartHeight}px` }}>
             <svg
@@ -115,20 +138,23 @@ export default function StatsPage() {
         </div>
 
         <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-2xl p-6 border border-teal-700/30">
-          <h2 className="text-xl font-semibold mb-6">Most Missed Prayers</h2>
+          <div className="flex items-center gap-2 mb-6">
+            <AlertCircle size={20} className="text-red-400" />
+            <h2 className="text-lg font-semibold">Most Missed Prayers</h2>
+          </div>
 
-          <div className="h-48 flex items-end justify-around gap-3">
+          <div className="h-48 flex items-end justify-around gap-4">
             {qazaBacklog
               .sort((a, b) => b.count - a.count)
               .slice(0, 3)
               .map((prayer) => (
                 <div key={prayer.name} className="flex flex-col items-center flex-1">
-                  <div className="text-sm text-gray-400 mb-2">{prayer.count}</div>
+                  <div className="text-sm font-bold text-red-400 mb-2">{prayer.count}</div>
                   <div
-                    className="w-full bg-gradient-to-t from-gray-600 to-gray-500 rounded-t-lg"
+                    className="w-full bg-gradient-to-t from-red-600/40 to-red-500/60 rounded-lg border border-red-500/30 hover:border-red-500/60 transition-colors"
                     style={{ height: `${(prayer.count / maxCount) * 150}px` }}
                   ></div>
-                  <div className="text-sm text-gray-300 mt-2">{prayer.name}</div>
+                  <div className="text-sm font-semibold text-gray-300 mt-3">{prayer.name}</div>
                 </div>
               ))}
           </div>
