@@ -7,7 +7,9 @@ type PrayerName = 'Fajr' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
 interface AdaPrayer {
   name: PrayerName;
   completed: boolean;
+  missed: boolean;
   reason?: string;
+  otherReason?: string;
 }
 
 interface QazaPrayer {
@@ -20,11 +22,11 @@ export default function LogPage() {
   const [expandedPrayer, setExpandedPrayer] = useState<PrayerName | null>(null);
 
   const [adaPrayers, setAdaPrayers] = useState<AdaPrayer[]>([
-    { name: 'Fajr', completed: false },
-    { name: 'Dhuhr', completed: false },
-    { name: 'Asr', completed: false },
-    { name: 'Maghrib', completed: false },
-    { name: 'Isha', completed: false },
+    { name: 'Fajr', completed: false, missed: false },
+    { name: 'Dhuhr', completed: false, missed: false },
+    { name: 'Asr', completed: false, missed: false },
+    { name: 'Maghrib', completed: false, missed: false },
+    { name: 'Isha', completed: false, missed: false },
   ]);
 
   const [qazaPrayers, setQazaPrayers] = useState<QazaPrayer[]>([
@@ -35,13 +37,44 @@ export default function LogPage() {
     { name: 'Isha', count: 0 },
   ]);
 
-  const reasons = ['Sleep', 'Work/Study', 'Travel', 'Health', 'Forgot', 'Voice Message', 'Other'];
+  const reasons = ['Sleep', 'Work/Study', 'Travel', 'Health', 'Forgot', 'Other'];
 
-  const toggleAdaPrayer = (name: PrayerName) => {
+  const markPrayerCompleted = (name: PrayerName) => {
     setAdaPrayers(prayers =>
-      prayers.map(p => (p.name === name ? { ...p, completed: !p.completed } : p))
+      prayers.map(p =>
+        p.name === name
+          ? { ...p, completed: true, missed: false, reason: undefined, otherReason: undefined }
+          : p
+      )
+    );
+    setExpandedPrayer(null);
+  };
+
+  const markPrayerMissed = (name: PrayerName) => {
+    setAdaPrayers(prayers =>
+      prayers.map(p =>
+        p.name === name ? { ...p, missed: true, completed: false } : p
+      )
     );
     setExpandedPrayer(expandedPrayer === name ? null : name);
+  };
+
+  const setReasonForPrayer = (name: PrayerName, reason: string) => {
+    setAdaPrayers(prayers =>
+      prayers.map(p =>
+        p.name === name
+          ? { ...p, reason, otherReason: reason === 'Other' ? p.otherReason : undefined }
+          : p
+      )
+    );
+  };
+
+  const setOtherReasonForPrayer = (name: PrayerName, otherReason: string) => {
+    setAdaPrayers(prayers =>
+      prayers.map(p =>
+        p.name === name ? { ...p, otherReason } : p
+      )
+    );
   };
 
   const updateQazaCount = (name: PrayerName, delta: number) => {
@@ -88,43 +121,66 @@ export default function LogPage() {
             <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-2xl border border-teal-700/30 overflow-hidden">
               {adaPrayers.map((prayer, index) => (
                 <div key={prayer.name}>
-                  <div
-                    className={`flex items-center justify-between p-5 cursor-pointer hover:bg-gray-800/30 transition-colors ${
-                      expandedPrayer === prayer.name ? 'bg-gray-800/40' : ''
-                    }`}
-                    onClick={() => toggleAdaPrayer(prayer.name)}
-                  >
+                  <div className="flex items-center justify-between p-5">
                     <span className="text-xl">{prayer.name}</span>
                     <div className="flex items-center gap-4">
-                      {prayer.completed && (
-                        <Check size={20} className="text-emerald-500" />
-                      )}
                       <button
+                        onClick={() => markPrayerCompleted(prayer.name)}
                         className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all ${
                           prayer.completed
                             ? 'bg-emerald-500/20 border-emerald-500'
-                            : 'border-gray-600'
+                            : 'border-emerald-700/50 hover:border-emerald-500'
                         }`}
                       >
-                        <X size={20} className={prayer.completed ? 'text-emerald-500' : 'text-gray-400'} />
+                        <Check
+                          size={20}
+                          className={prayer.completed ? 'text-emerald-500' : 'text-gray-400'}
+                        />
+                      </button>
+                      <button
+                        onClick={() => markPrayerMissed(prayer.name)}
+                        className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all ${
+                          prayer.missed
+                            ? 'bg-gray-800 border-gray-600'
+                            : 'border-gray-700/50 hover:border-gray-500'
+                        }`}
+                      >
+                        <X size={20} className="text-gray-400" />
                       </button>
                     </div>
                   </div>
 
-                  {expandedPrayer === prayer.name && !prayer.completed && (
-                    <div className="px-5 pb-5 pt-2">
-                      <p className="text-gray-400 text-sm mb-1">Reason (optional)</p>
+                  {expandedPrayer === prayer.name && prayer.missed && (
+                    <div className="px-5 pb-5 pt-2 bg-gray-800/20">
+                      <p className="text-gray-300 text-sm font-medium mb-1">Reason (optional)</p>
                       <p className="text-gray-500 text-xs mb-4">For personal reflection only</p>
                       <div className="flex flex-wrap gap-2">
                         {reasons.map((reason) => (
                           <button
                             key={reason}
-                            className="px-4 py-2 bg-gray-800/50 hover:bg-gray-700/50 rounded-lg text-sm text-gray-300 transition-colors"
+                            onClick={() => setReasonForPrayer(prayer.name, reason)}
+                            className={`px-4 py-2 rounded-lg text-sm transition-all ${
+                              prayer.reason === reason
+                                ? 'bg-emerald-500 text-white'
+                                : 'bg-gray-800/50 hover:bg-gray-700/50 text-gray-300'
+                            }`}
                           >
                             {reason}
                           </button>
                         ))}
                       </div>
+
+                      {prayer.reason === 'Other' && (
+                        <div className="mt-4">
+                          <input
+                            type="text"
+                            placeholder="Please specify..."
+                            value={prayer.otherReason || ''}
+                            onChange={(e) => setOtherReasonForPrayer(prayer.name, e.target.value)}
+                            className="w-full bg-gray-800/50 border border-teal-700/30 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50"
+                          />
+                        </div>
+                      )}
                     </div>
                   )}
 
