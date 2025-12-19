@@ -15,17 +15,36 @@ export default function HomePage() {
 }
 
   useEffect(() => {
-    const userId = getTelegramUserId();
+  // @ts-ignore
+  const tg = window.Telegram?.WebApp;
 
-    fetch(`http://127.0.0.1:8000/qaza/total/${userId}`)
-      .then(res => res.json())
-      .then(data => {
-        setTotalQazaRemaining(data.total_qazas);
-      })
-      .catch(err => {
-        console.error("Failed to fetch total qazas", err);
-      });
-  }, []);
+  if (!tg) {
+    console.error("Telegram WebApp not found");
+    return;
+  }
+
+  // REQUIRED
+  tg.ready();
+
+  const userId = tg.initDataUnsafe?.user?.id;
+
+  console.log("Telegram userId:", userId);
+
+  if (!userId) {
+    console.error("Telegram userId is null");
+    return;
+  }
+
+  fetch(`http://127.0.0.1:8000/qaza/total/${userId}`)
+    .then(res => res.json())
+    .then(data => {
+      setTotalQazaRemaining(data.total_qazas);
+    })
+    .catch(err => {
+      console.error("Failed to fetch total qazas", err);
+    });
+}, []);
+
 
   const weeklyActivity = [
     { day: 'S', active: true },
