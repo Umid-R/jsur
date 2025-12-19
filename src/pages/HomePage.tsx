@@ -5,14 +5,7 @@ export default function HomePage() {
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
   const [totalQazaRemaining, setTotalQazaRemaining] = useState<number | null>(null);
 
-  function getTelegramUserId(): number | null {
-  // @ts-ignore
-  if (window.Telegram && window.Telegram.WebApp) {
-    // @ts-ignore
-    return window.Telegram.WebApp.initDataUnsafe?.user?.id ?? null;
-  }
-  return null;
-}
+  
 
   useEffect(() => {
   // @ts-ignore
