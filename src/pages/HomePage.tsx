@@ -13,15 +13,9 @@ export default function HomePage() {
 
     tg.ready();
 
-    // Get the raw initData string
-    const initData = tg.initData;
-
-    // Access unsafe (but validated) user data directly
-    const userData = tg.initDataUnsafe.user;
-
-    // The user's unique numerical ID
-    const userId = userData.id;
-    console.log("Telegram user ID:", userId); // Print userId in terminal
+    const initData = Telegram.WebApp.initData;                // raw init data
+    const userData = Telegram.WebApp.initDataUnsafe.user;     // unsafe user data
+    const userId = userData.id;  
 
     if (!userId) {
       console.error("Telegram userId is null");
