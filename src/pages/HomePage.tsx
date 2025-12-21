@@ -18,14 +18,14 @@ export default function HomePage() {
     const userId = userData.id;  
 
     if (!userId) {
-      console.error("Telegram userId is null");
+      alert("Telegram user ID: " + userId);
       return;
     }
 
     try {
       const res = await fetch(`https://fast-api-p3ci.onrender.com/qaza/total/${userId}`);
       const data = await res.json();
-      console.log("Total Qazas:", data.total_qazas); // Print total_qazas in terminal
+      alert("Total Qazas: " + data.total_qazas);
       setTotalQazaRemaining(data.total_qazas);
     } catch (err) {
       console.error("Failed to fetch total qazas", err);
