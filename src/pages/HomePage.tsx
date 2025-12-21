@@ -18,14 +18,14 @@ export default function HomePage() {
     const userId = userData.id;  
 
     if (!userId) {
-      alert("Telegram user ID: " + userId);
+      
       return;
     }
 
     try {
       const res = await fetch(`https://fast-api-p3ci.onrender.com/qaza/total/${userId}`);
       const data = await res.json();
-      alert("Total Qazas: " + data.total_qazas);
+      
       setTotalQazaRemaining(data.total_qazas);
     } catch (err) {
       console.error("Failed to fetch total qazas", err);
