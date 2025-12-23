@@ -52,22 +52,22 @@ export const api = {
   },
 
   async getPrayerStats(userId: number): Promise<PrayerStats> {
-    const response = await fetch(`${API_BASE_URL}/stats/${userId}`);
+    const response = await fetch(`${API_BASE_URL}/qaza/stats/${userId}`);
     return handleResponse(response);
   },
 
   async getWeeklyActivity(userId: number): Promise<WeeklyActivity[]> {
-    const response = await fetch(`${API_BASE_URL}/activity/weekly/${userId}`);
+    const response = await fetch(`${API_BASE_URL}/qaza/activity/weekly/${userId}`);
     return handleResponse(response);
   },
 
   async getMonthSummary(userId: number, year: number, month: number): Promise<MonthSummary> {
-    const response = await fetch(`${API_BASE_URL}/calendar/summary/${userId}?year=${year}&month=${month}`);
+    const response = await fetch(`${API_BASE_URL}/qaza/calendar/summary/${userId}?year=${year}&month=${month}`);
     return handleResponse(response);
   },
 
   async logAdaPrayer(userId: number, data: any) {
-    const response = await fetch(`${API_BASE_URL}/log/ada`, {
+    const response = await fetch(`${API_BASE_URL}/qaza/log/ada`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_id: userId, ...data }),
@@ -76,7 +76,7 @@ export const api = {
   },
 
   async logQazaPrayer(userId: number, data: any) {
-    const response = await fetch(`${API_BASE_URL}/log/qaza`, {
+    const response = await fetch(`${API_BASE_URL}/qaza/log/qaza`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_id: userId, ...data }),
