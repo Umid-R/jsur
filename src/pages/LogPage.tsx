@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Check, X, Minus, Plus, Mic, Trash2 } from 'lucide-react';
+import { getTelegramUserId, initTelegramApp } from '../utils/telegram';
+import { api } from '../services/api';
 
 type TabType = 'ada' | 'qaza';
 type PrayerName = 'Fajr' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
@@ -22,6 +24,9 @@ interface QazaPrayer {
 export default function LogPage() {
   const [activeTab, setActiveTab] = useState<TabType>('ada');
   const [expandedPrayer, setExpandedPrayer] = useState<PrayerName | null>(null);
+  const [userId, setUserId] = useState<number | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
   const [adaPrayers, setAdaPrayers] = useState<AdaPrayer[]>([
     { name: 'Fajr', completed: false, missed: false },
@@ -41,6 +46,12 @@ export default function LogPage() {
 
   const [isRecording, setIsRecording] = useState<PrayerName | null>(null);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+
+  useEffect(() => {
+    initTelegramApp();
+    const id = getTelegramUserId();
+    setUserId(id);
+  }, []);
 
   const reasons = ['Sleep', 'Work/Study', 'Travel', 'Health', 'Forgot', 'Voice Message', 'Other'];
 
@@ -134,6 +145,82 @@ export default function LogPage() {
         p.name === name ? { ...p, count: Math.max(0, p.count + delta) } : p
       )
     );
+  };
+
+  const handleSaveAda = async () => {
+    if (!userId) {
+      setSaveMessage('Unable to save: User ID not found');
+      return;
+    }
+
+    setSaving(true);
+    setSaveMessage(null);
+
+    try {
+      const dataToSave = adaPrayers.map(prayer => ({
+        prayer_name: prayer.name.toLowerCase(),
+        completed: prayer.completed,
+        missed: prayer.missed,
+        reason: prayer.missed ? (prayer.reason === 'Other' ? prayer.otherReason : prayer.reason) : undefined,
+      }));
+
+      await api.logAdaPrayer(userId, { prayers: dataToSave });
+      setSaveMessage('Ada prayers saved successfully!');
+
+      setAdaPrayers([
+        { name: 'Fajr', completed: false, missed: false },
+        { name: 'Dhuhr', completed: false, missed: false },
+        { name: 'Asr', completed: false, missed: false },
+        { name: 'Maghrib', completed: false, missed: false },
+        { name: 'Isha', completed: false, missed: false },
+      ]);
+      setExpandedPrayer(null);
+
+      setTimeout(() => setSaveMessage(null), 3000);
+    } catch (error) {
+      console.error('Failed to save ada prayers', error);
+      setSaveMessage('Failed to save prayers. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveQaza = async () => {
+    if (!userId) {
+      setSaveMessage('Unable to save: User ID not found');
+      return;
+    }
+
+    setSaving(true);
+    setSaveMessage(null);
+
+    try {
+      const dataToSave = {
+        fajr: qazaPrayers.find(p => p.name === 'Fajr')?.count || 0,
+        dhuhr: qazaPrayers.find(p => p.name === 'Dhuhr')?.count || 0,
+        asr: qazaPrayers.find(p => p.name === 'Asr')?.count || 0,
+        maghrib: qazaPrayers.find(p => p.name === 'Maghrib')?.count || 0,
+        isha: qazaPrayers.find(p => p.name === 'Isha')?.count || 0,
+      };
+
+      await api.logQazaPrayer(userId, dataToSave);
+      setSaveMessage('Qaza prayers saved successfully!');
+
+      setQazaPrayers([
+        { name: 'Fajr', count: 0 },
+        { name: 'Dhuhr', count: 0 },
+        { name: 'Asr', count: 0 },
+        { name: 'Maghrib', count: 0 },
+        { name: 'Isha', count: 0 },
+      ]);
+
+      setTimeout(() => setSaveMessage(null), 3000);
+    } catch (error) {
+      console.error('Failed to save qaza prayers', error);
+      setSaveMessage('Failed to save prayers. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -278,9 +365,18 @@ export default function LogPage() {
               ))}
             </div>
 
-            <button className="w-full bg-emerald-500 hover:bg-emerald-600 transition-colors py-4 rounded-2xl font-medium text-lg">
-              Save
+            <button
+              onClick={handleSaveAda}
+              disabled={saving}
+              className="w-full bg-emerald-500 hover:bg-emerald-600 transition-colors py-4 rounded-2xl font-medium text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {saving ? 'Saving...' : 'Save'}
             </button>
+            {saveMessage && (
+              <div className={`text-center text-sm ${saveMessage.includes('successfully') ? 'text-emerald-400' : 'text-red-400'}`}>
+                {saveMessage}
+              </div>
+            )}
           </div>
         )}
 
@@ -314,9 +410,18 @@ export default function LogPage() {
               ))}
             </div>
 
-            <button className="w-full bg-emerald-500 hover:bg-emerald-600 transition-colors py-4 rounded-2xl font-medium text-lg">
-              Save
+            <button
+              onClick={handleSaveQaza}
+              disabled={saving}
+              className="w-full bg-emerald-500 hover:bg-emerald-600 transition-colors py-4 rounded-2xl font-medium text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {saving ? 'Saving...' : 'Save'}
             </button>
+            {saveMessage && (
+              <div className={`text-center text-sm ${saveMessage.includes('successfully') ? 'text-emerald-400' : 'text-red-400'}`}>
+                {saveMessage}
+              </div>
+            )}
           </div>
         )}
       </div>
