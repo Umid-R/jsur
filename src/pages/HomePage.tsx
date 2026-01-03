@@ -55,7 +55,7 @@ export default function HomePage() {
       ]
     : [];
 
-  const maxCount = prayerBreakdown.length > 0 ? Math.max(...prayerBreakdown.map(p => p.count)) : 1;
+  const maxCount = prayerBreakdown.length > 0 ? Math.max(1, Math.max(...prayerBreakdown.map(p => p.count))) : 1;
   const completedToday = prayerStats?.completed_today ?? 0;
   const dailyGoal = prayerStats?.daily_goal ?? 4;
   const progressPercent = dailyGoal > 0 ? (completedToday / dailyGoal) * 100 : 0;
