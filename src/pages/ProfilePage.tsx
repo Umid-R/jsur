@@ -1,6 +1,6 @@
 import { User } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { getTelegramUser, getTelegramUserId, initTelegramApp } from '../utils/telegram';
+import { getTelegramUserId, initTelegramApp } from '../utils/telegram';
 import { api, PrayerStats } from '../services/api';
 
 export default function ProfilePage() {
@@ -13,14 +13,6 @@ export default function ProfilePage() {
     async function fetchData() {
       initTelegramApp();
       const userId = getTelegramUserId();
-      const user = getTelegramUser();
-
-      if (user) {
-        const name = user.first_name
-          ? `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`
-          : user.username || 'User';
-        setUserName(name);
-      }
 
       if (!userId) {
         setError('Unable to get Telegram user ID');
@@ -29,7 +21,12 @@ export default function ProfilePage() {
       }
 
       try {
-        const stats = await api.getPrayerStats(userId);
+        const [userInfo, stats] = await Promise.all([
+          api.getUserInfo(userId),
+          api.getPrayerStats(userId),
+        ]);
+
+        setUserName(userInfo.name || 'User');
         setPrayerStats(stats);
       } catch (err) {
         console.error('Failed to fetch data', err);

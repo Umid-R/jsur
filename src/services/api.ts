@@ -33,6 +33,10 @@ export interface MonthSummary {
   most_common_reason: string;
 }
 
+export interface UserInfo {
+  name: string;
+}
+
 const handleResponse = async (response: Response) => {
   if (!response.ok) {
     throw new Error(`API Error: ${response.status}`);
@@ -41,6 +45,11 @@ const handleResponse = async (response: Response) => {
 };
 
 export const api = {
+  async getUserInfo(userId: number): Promise<UserInfo> {
+    const response = await fetch(`${API_BASE_URL}/qaza/user_info/${userId}`);
+    return handleResponse(response);
+  },
+
   async getTotalQaza(userId: number): Promise<QazaTotal> {
     const response = await fetch(`${API_BASE_URL}/qaza/total/${userId}`);
     return handleResponse(response);
