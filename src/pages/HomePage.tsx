@@ -143,7 +143,16 @@ export default function HomePage() {
                 <h3 className="text-lg font-semibold">Weekly Consistency</h3>
                 <div className="text-emerald-400 text-sm font-semibold">{activeDaysCount}/7 days</div>
               </div>
-              <p className="text-gray-400 text-sm mb-5">Active last 7 days</p>
+              <div className="flex items-center gap-2 mb-5">
+                <p className="text-gray-400 text-sm">Active last 7 days</p>
+                <div
+                  className={`w-3 h-3 rounded-full ${
+                    completedToday >= dailyGoal
+                      ? 'bg-emerald-500 shadow-lg shadow-emerald-500/50'
+                      : 'bg-red-500 shadow-lg shadow-red-500/50'
+                  }`}
+                ></div>
+              </div>
               <div className="flex gap-2">
                 {weeklyActivity?.map((item, index) => (
                   <div key={index} className="flex-1 flex flex-col items-center gap-2">
