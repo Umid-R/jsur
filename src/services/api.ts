@@ -61,7 +61,7 @@ export const api = {
   },
 
   async getPrayerStats(userId: number): Promise<PrayerStats> {
-    const response = await fetch(`${API_BASE_URL}/stats/${userId}`);
+    const response = await fetch(`${API_BASE_URL}/qaza/stats/${userId}`);
     return handleResponse(response);
   },
 
