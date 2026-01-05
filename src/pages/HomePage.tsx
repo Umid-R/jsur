@@ -154,19 +154,42 @@ export default function HomePage() {
                 ></div>
               </div>
               <div className="flex gap-2">
-                {weeklyActivity?.map((item, index) => (
-                  <div key={index} className="flex-1 flex flex-col items-center gap-2">
-                    <div
-                      className={`flex-1 w-full rounded-lg transition-all ${
-                        item.active
-                          ? 'bg-gradient-to-t from-emerald-500 to-emerald-400 shadow-lg shadow-emerald-500/30'
-                          : 'bg-gray-800/50 hover:bg-gray-700/50'
-                      }`}
-                      style={{ height: '40px' }}
-                    ></div>
-                    <span className="text-xs text-gray-400 font-medium">{item.day}</span>
-                  </div>
-                ))}
+                {weeklyActivity?.map((item, index) => {
+                  const hasData = item.completed_today !== undefined && item.daily_goal !== undefined;
+                  const goalCompleted = hasData && (item.completed_today ?? 0) >= (item.daily_goal ?? 0);
+                  return (
+                    <div key={index} className="flex-1 flex flex-col items-center gap-2">
+                      <div
+                        className={`flex-1 w-full rounded-lg transition-all ${
+                          item.active
+                            ? 'bg-gradient-to-t from-emerald-500 to-emerald-400 shadow-lg shadow-emerald-500/30'
+                            : 'bg-gray-800/50 hover:bg-gray-700/50'
+                        }`}
+                        style={{ height: '40px' }}
+                      ></div>
+                      <div className="relative">
+                        <span
+                          className={`text-xs font-medium transition-colors ${
+                            hasData && !goalCompleted
+                              ? 'text-red-400'
+                              : 'text-gray-400'
+                          }`}
+                        >
+                          {item.day}
+                        </span>
+                        {hasData && (
+                          <div
+                            className={`absolute -top-2 left-1/2 transform -translate-x-1/2 w-3 h-3 rounded-full ${
+                              goalCompleted
+                                ? 'bg-emerald-500 shadow-lg shadow-emerald-500/50'
+                                : 'bg-red-500 shadow-lg shadow-red-500/50'
+                            }`}
+                          ></div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </>
