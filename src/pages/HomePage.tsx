@@ -3,7 +3,13 @@ import { useEffect, useState } from 'react';
 import { getTelegramUserId, initTelegramApp } from '../utils/telegram';
 import { api, QazaBreakdown, PrayerStats, WeeklyActivity } from '../services/api';
 
-export default function HomePage() {
+type Page = 'home' | 'log' | 'stats' | 'calendar' | 'profile';
+
+export default function HomePage({
+  onNavigate,
+}: {
+  onNavigate: (page: Page) => void;
+}) {
   const [totalQazaRemaining, setTotalQazaRemaining] = useState<number | null>(null);
   const [qazaBreakdown, setQazaBreakdown] = useState<QazaBreakdown | null>(null);
   const [prayerStats, setPrayerStats] = useState<PrayerStats | null>(null);
@@ -107,11 +113,18 @@ export default function HomePage() {
 
         {/* QUICK ACTIONS */}
         <div className="grid grid-cols-2 gap-4">
-          <button className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-6 flex flex-col items-center gap-3">
+          <button
+            onClick={() => onNavigate('stats')}
+            className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-6 flex flex-col items-center gap-3"
+          >
             <BarChart3 size={32} />
             <span className="font-semibold text-lg">View Stats</span>
           </button>
-          <button className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-6 flex flex-col items-center gap-3">
+
+          <button
+            onClick={() => onNavigate('calendar')}
+            className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-6 flex flex-col items-center gap-3"
+          >
             <Calendar size={32} />
             <span className="font-semibold text-lg">Calendar</span>
           </button>
@@ -159,7 +172,7 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* JOURNEY */}
+        {/* QAZA COUNTS BY PRAYER */}
         {!loading && !error && prayerBreakdown.length > 0 && (
           <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-2xl p-6 border border-teal-700/30">
             <div className="flex items-center gap-2 mb-6">
