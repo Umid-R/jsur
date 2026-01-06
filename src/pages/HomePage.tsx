@@ -67,7 +67,8 @@ export default function HomePage({
   const completedToday = prayerStats?.completed_today ?? 0;
   const dailyGoal = prayerStats?.daily_goal ?? 4;
   const progressPercent = dailyGoal > 0 ? (completedToday / dailyGoal) * 100 : 0;
-  const activeDaysCount = weeklyActivity?.filter(w => w.active).length ?? 0;
+  const activeDaysCount = weeklyActivity?.filter(w => w.status).length ?? 0;
+
 
   return (
     <div className="min-h-screen bg-[#0f1419] text-white px-5 py-8">
@@ -154,20 +155,17 @@ export default function HomePage({
 
               <div className="flex gap-2">
   {weeklyActivity?.map((item, index) => {
-    // If the user did at least one qaza, green; otherwise red
-    const circleColor = item.active ? 'bg-emerald-400' : 'bg-red-500';
+    const circleColor = item.status ? 'bg-emerald-400' : 'bg-red-500';
 
     return (
       <div key={index} className="flex-1 flex flex-col items-center gap-2">
-        {/* Circle */}
-        <div
-          className={`w-6 h-6 rounded-full ${circleColor}`}
-        />
+        <div className={`w-6 h-6 rounded-full ${circleColor}`} />
         <span className="text-xs text-gray-400">{item.day}</span>
       </div>
     );
   })}
 </div>
+
             </div>
           </>
         )}
