@@ -153,20 +153,21 @@ export default function HomePage({
               </div>
 
               <div className="flex gap-2">
-                {weeklyActivity?.map((item, index) => (
-                  <div key={index} className="flex-1 flex flex-col items-center gap-2">
-                    <div
-                      className={`flex-1 w-full rounded-lg ${
-                        item.active
-                          ? 'bg-gradient-to-t from-emerald-500 to-emerald-400'
-                          : 'bg-gray-800/50'
-                      }`}
-                      style={{ height: '40px' }}
-                    />
-                    <span className="text-xs text-gray-400">{item.day}</span>
-                  </div>
-                ))}
-              </div>
+  {weeklyActivity?.map((item, index) => {
+    // If the user did at least one qaza, green; otherwise red
+    const circleColor = item.active ? 'bg-emerald-400' : 'bg-red-500';
+
+    return (
+      <div key={index} className="flex-1 flex flex-col items-center gap-2">
+        {/* Circle */}
+        <div
+          className={`w-6 h-6 rounded-full ${circleColor}`}
+        />
+        <span className="text-xs text-gray-400">{item.day}</span>
+      </div>
+    );
+  })}
+</div>
             </div>
           </>
         )}
