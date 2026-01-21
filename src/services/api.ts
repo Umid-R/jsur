@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://fast-api-p3ci.onrender.com';
+const API_BASE_URL = 'https://qazo-tracker-nv2w.vercel.app';
 
 export interface QazaTotal {
   total_qazas: number;
