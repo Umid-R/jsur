@@ -1,4 +1,5 @@
-const API_BASE_URL = 'https://qazo-tracker-nv2w.vercel.app';
+const API_BASE_URL = 'https://qazo-tracker.vercel.app';
+
 
 export interface QazaTotal {
   total_qazas: number;
