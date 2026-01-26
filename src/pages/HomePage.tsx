@@ -27,12 +27,16 @@ export default function HomePage({
       }
 
       try {
-        const [totalQaza, breakdown, stats, activity] = await Promise.all([
-          api.getTotalQaza(userId),
-          api.getQazaBreakdown(userId),
-          api.getPrayerStats(userId),
-          api.getWeeklyActivity(userId),
+        const results = await Promise.allSettled([
+        api.getTotalQaza(userId),
+        api.getQazaBreakdown(userId),
+        api.getPrayerStats(userId),
+        api.getWeeklyActivity(userId),
         ]);
+        
+        const [totalQaza, breakdown, stats, activity] = results.map(r =>
+          r.status === 'fulfilled' ? r.value : null
+        );
 
         setTotalQazaRemaining(totalQaza.total_qazas);
         setQazaBreakdown(breakdown);
