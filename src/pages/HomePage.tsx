@@ -38,10 +38,10 @@ export default function HomePage({
           r.status === 'fulfilled' ? r.value : null
         );
 
-        setTotalQazaRemaining(totalQaza.total_qazas);
+        setTotalQazaRemaining(totalQaza?.total_qazas ?? 0);
         setQazaBreakdown(breakdown);
         setPrayerStats(stats);
-        setWeeklyActivity(activity);
+        setWeeklyActivity(activity ?? []);
       } catch (err) {
         console.error('Failed to fetch data', err);
         setError('Failed to load data');
