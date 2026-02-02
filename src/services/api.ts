@@ -38,6 +38,10 @@ export interface UserInfo {
   name: string;
 }
 
+export interface Quote {
+  quote: string;
+}
+
 const handleResponse = async (response: Response) => {
   if (!response.ok) {
     throw new Error(`API Error: ${response.status}`);
@@ -91,6 +95,20 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_id: userId, ...data }),
     });
+    return handleResponse(response);
+  },
+
+  async markQazasPrayed(userId: number, data: any) {
+    const response = await fetch(`${API_BASE_URL}/qaza/mark_prayed`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: userId, ...data }),
+    });
+    return handleResponse(response);
+  },
+
+  async getQuote(): Promise<Quote> {
+    const response = await fetch(`${API_BASE_URL}/qaza/quotes`);
     return handleResponse(response);
   },
 };

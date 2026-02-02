@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Check, X, Minus, Plus, Mic, Trash2 } from 'lucide-react';
 import { getTelegramUserId, initTelegramApp } from '../utils/telegram';
-import { api } from '../services/api';
+import { api, QazaBreakdown } from '../services/api';
 
-type TabType = 'ada' | 'qaza';
+type TabType = 'ada' | 'qaza' | 'clear';
 type PrayerName = 'Fajr' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
 
 interface AdaPrayer {
@@ -44,6 +44,16 @@ export default function LogPage() {
     { name: 'Isha', count: 0 },
   ]);
 
+  const [clearPrayers, setClearPrayers] = useState<QazaPrayer[]>([
+    { name: 'Fajr', count: 0 },
+    { name: 'Dhuhr', count: 0 },
+    { name: 'Asr', count: 0 },
+    { name: 'Maghrib', count: 0 },
+    { name: 'Isha', count: 0 },
+  ]);
+
+  const [qazaLimits, setQazaLimits] = useState<QazaBreakdown | null>(null);
+
   const [isRecording, setIsRecording] = useState<PrayerName | null>(null);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
 
@@ -51,6 +61,12 @@ export default function LogPage() {
     initTelegramApp();
     const id = getTelegramUserId();
     setUserId(id);
+
+    if (id) {
+      api.getQazaBreakdown(id)
+        .then(setQazaLimits)
+        .catch(err => console.error('Failed to fetch qaza breakdown', err));
+    }
   }, []);
 
   const reasons = ['Sleep', 'Work/Study', 'Travel', 'Health', 'Forgot', 'Voice Message', 'Other'];
@@ -147,6 +163,19 @@ export default function LogPage() {
     );
   };
 
+  const updateClearCount = (name: PrayerName, delta: number) => {
+    setClearPrayers(prayers =>
+      prayers.map(p => {
+        if (p.name === name) {
+          const maxLimit = qazaLimits ? qazaLimits[name.toLowerCase() as keyof QazaBreakdown] : Infinity;
+          const newCount = Math.max(0, p.count + delta);
+          return { ...p, count: Math.min(newCount, maxLimit) };
+        }
+        return p;
+      })
+    );
+  };
+
   const handleSaveAda = async () => {
     if (!userId) {
       setSaveMessage('Unable to save: User ID not found');
@@ -223,6 +252,50 @@ export default function LogPage() {
     }
   };
 
+  const handleSaveClear = async () => {
+    if (!userId) {
+      setSaveMessage('Unable to save: User ID not found');
+      return;
+    }
+
+    setSaving(true);
+    setSaveMessage(null);
+
+    try {
+      const dataToSave = {
+        fajr: clearPrayers.find(p => p.name === 'Fajr')?.count || 0,
+        dhuhr: clearPrayers.find(p => p.name === 'Dhuhr')?.count || 0,
+        asr: clearPrayers.find(p => p.name === 'Asr')?.count || 0,
+        maghrib: clearPrayers.find(p => p.name === 'Maghrib')?.count || 0,
+        isha: clearPrayers.find(p => p.name === 'Isha')?.count || 0,
+      };
+
+      await api.markQazasPrayed(userId, dataToSave);
+      setSaveMessage('Qaza prayers marked as prayed!');
+
+      setClearPrayers([
+        { name: 'Fajr', count: 0 },
+        { name: 'Dhuhr', count: 0 },
+        { name: 'Asr', count: 0 },
+        { name: 'Maghrib', count: 0 },
+        { name: 'Isha', count: 0 },
+      ]);
+
+      if (userId) {
+        api.getQazaBreakdown(userId)
+          .then(setQazaLimits)
+          .catch(err => console.error('Failed to refresh qaza breakdown', err));
+      }
+
+      setTimeout(() => setSaveMessage(null), 3000);
+    } catch (error) {
+      console.error('Failed to mark qaza prayers', error);
+      setSaveMessage('Failed to save prayers. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0f1419] text-white px-5 py-8">
       <div className="max-w-2xl mx-auto">
@@ -234,7 +307,7 @@ export default function LogPage() {
         <div className="flex gap-3 mb-6">
           <button
             onClick={() => setActiveTab('ada')}
-            className={`flex-1 py-4 rounded-2xl font-medium text-lg transition-all ${
+            className={`flex-1 py-4 rounded-2xl font-medium text-base transition-all ${
               activeTab === 'ada'
                 ? 'bg-emerald-500 text-white'
                 : 'bg-gray-800/50 text-gray-400 border border-gray-700/50'
@@ -244,13 +317,23 @@ export default function LogPage() {
           </button>
           <button
             onClick={() => setActiveTab('qaza')}
-            className={`flex-1 py-4 rounded-2xl font-medium text-lg transition-all ${
+            className={`flex-1 py-4 rounded-2xl font-medium text-base transition-all ${
               activeTab === 'qaza'
                 ? 'bg-emerald-500 text-white'
                 : 'bg-gray-800/50 text-gray-400 border border-gray-700/50'
             }`}
           >
             Qaza
+          </button>
+          <button
+            onClick={() => setActiveTab('clear')}
+            className={`flex-1 py-4 rounded-2xl font-medium text-base transition-all ${
+              activeTab === 'clear'
+                ? 'bg-emerald-500 text-white'
+                : 'bg-gray-800/50 text-gray-400 border border-gray-700/50'
+            }`}
+          >
+            Clear
           </button>
         </div>
 
@@ -419,6 +502,60 @@ export default function LogPage() {
             </button>
             {saveMessage && (
               <div className={`text-center text-sm ${saveMessage.includes('successfully') ? 'text-emerald-400' : 'text-red-400'}`}>
+                {saveMessage}
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'clear' && (
+          <div className="space-y-4">
+            <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-2xl border border-teal-700/30 overflow-hidden">
+              {clearPrayers.map((prayer, index) => {
+                const maxLimit = qazaLimits ? qazaLimits[prayer.name.toLowerCase() as keyof QazaBreakdown] : 0;
+                return (
+                  <div key={prayer.name}>
+                    <div className="flex items-center justify-between p-5">
+                      <div className="flex flex-col">
+                        <span className="text-xl">{prayer.name}</span>
+                        {qazaLimits && (
+                          <span className="text-xs text-gray-500">Max: {maxLimit}</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <button
+                          onClick={() => updateClearCount(prayer.name, -1)}
+                          className="w-10 h-10 rounded-full flex items-center justify-center border border-teal-700/50 hover:bg-gray-800/50 transition-colors"
+                        >
+                          <Minus size={18} className="text-gray-400" />
+                        </button>
+                        <span className="text-2xl font-medium w-12 text-center">{prayer.count}</span>
+                        <button
+                          onClick={() => updateClearCount(prayer.name, 1)}
+                          disabled={prayer.count >= maxLimit}
+                          className="w-10 h-10 rounded-full flex items-center justify-center border border-emerald-500 hover:bg-emerald-500/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                        >
+                          <Plus size={18} className="text-emerald-500" />
+                        </button>
+                      </div>
+                    </div>
+                    {index < clearPrayers.length - 1 && (
+                      <div className="h-px bg-gray-800/50 mx-5"></div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={handleSaveClear}
+              disabled={saving}
+              className="w-full bg-emerald-500 hover:bg-emerald-600 transition-colors py-4 rounded-2xl font-medium text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {saving ? 'Saving...' : 'Save'}
+            </button>
+            {saveMessage && (
+              <div className={`text-center text-sm ${saveMessage.includes('successfully') || saveMessage.includes('prayed') ? 'text-emerald-400' : 'text-red-400'}`}>
                 {saveMessage}
               </div>
             )}
