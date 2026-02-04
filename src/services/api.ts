@@ -42,6 +42,27 @@ export interface Quote {
   quote: string;
 }
 
+export interface CalendarDayData {
+  prayers: Array<{ name: string; prayed: boolean }>;
+}
+
+export interface CalendarMonthSummary {
+  missed: number;
+  qazaDone: number;
+  adaPrayers: number;
+  mostCommonReason: string;
+  mostMissedPrayer: string;
+  completionRate?: number;
+}
+
+export interface CalendarData {
+  year: number;
+  month: number;
+  userId: number;
+  dailyData: { [day: number]: CalendarDayData };
+  monthSummary: CalendarMonthSummary;
+}
+
 const handleResponse = async (response: Response) => {
   if (!response.ok) {
     throw new Error(`API Error: ${response.status}`);
@@ -109,6 +130,11 @@ export const api = {
 
   async getQuote(): Promise<Quote> {
     const response = await fetch(`${API_BASE_URL}/qaza/quotes`);
+    return handleResponse(response);
+  },
+
+  async getCalendarData(userId: number, year: number, month: number): Promise<CalendarData> {
+    const response = await fetch(`${API_BASE_URL}/qaza/calendar/${userId}?year=${year}&month=${month}`);
     return handleResponse(response);
   },
 };
