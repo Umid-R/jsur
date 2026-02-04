@@ -83,7 +83,16 @@ export default function CalendarPage() {
     );
   };
 
+  const isDateInPast = (day: number) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const checkDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+    return checkDate <= today;
+  };
+
   const getDayBackground = (day: number) => {
+    if (!isDateInPast(day)) return 'bg-gray-800/30';
+
     const dayData = daysWithPrayers[day as keyof typeof daysWithPrayers];
     if (!dayData) return 'bg-gray-800/30';
 
@@ -97,6 +106,8 @@ export default function CalendarPage() {
   };
 
   const getPrayerDots = (day: number) => {
+    if (!isDateInPast(day)) return null;
+
     const dayData = daysWithPrayers[day as keyof typeof daysWithPrayers];
     if (!dayData) return null;
 
