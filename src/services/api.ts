@@ -70,6 +70,29 @@ const handleResponse = async (response: Response) => {
   return response.json();
 };
 
+export interface AdaPrayerLog {
+  prayer: string;
+  status: 'completed' | 'missed';
+  reason?: string;
+}
+
+export interface LogAdaPayload {
+  prayers: AdaPrayerLog[];
+}
+
+export interface LogQazaPayload {
+  fajr: number;
+  dhuhr: number;
+  asr: number;
+  maghrib: number;
+  isha: number;
+}
+
+export interface ApiResponse {
+  success: boolean;
+  message: string;
+}
+
 export const api = {
   async getUserInfo(userId: number): Promise<UserInfo> {
     const response = await fetch(`${API_BASE_URL}/qaza/user_info/${userId}`);
@@ -101,29 +124,29 @@ export const api = {
     return handleResponse(response);
   },
 
-  async logAdaPrayer(userId: number, data: any) {
+  async logAdaPrayer(userId: number, payload: LogAdaPayload): Promise<ApiResponse> {
     const response = await fetch(`${API_BASE_URL}/qaza/log/ada`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: userId, ...data }),
+      body: JSON.stringify({ user_id: userId, ...payload }),
     });
     return handleResponse(response);
   },
 
-  async logQazaPrayer(userId: number, data: any) {
+  async logQazaPrayer(userId: number, payload: LogQazaPayload): Promise<ApiResponse> {
     const response = await fetch(`${API_BASE_URL}/qaza/log/qaza`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: userId, ...data }),
+      body: JSON.stringify({ user_id: userId, ...payload }),
     });
     return handleResponse(response);
   },
 
-  async markQazasPrayed(userId: number, data: any) {
+  async markQazasPrayed(userId: number, payload: LogQazaPayload): Promise<ApiResponse> {
     const response = await fetch(`${API_BASE_URL}/qaza/mark_prayed`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: userId, ...data }),
+      body: JSON.stringify({ user_id: userId, ...payload }),
     });
     return handleResponse(response);
   },
