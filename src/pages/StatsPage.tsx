@@ -124,14 +124,14 @@ export default function StatsPage() {
           <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-xl p-4 border border-gray-700/30">
             <div className="text-gray-400 text-xs font-semibold uppercase mb-2">Total</div>
             <div className="text-2xl font-bold text-gray-200">{totalQaza}</div>
-            <p className="text-xs text-gray-500">Remaining</p>
+            <p className="text-xs text-gray-500">Qazas Remaining</p>
           </div>
         </div>
 
         <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-2xl p-6 border border-teal-700/30">
           <div className="flex items-center gap-2 mb-6">
             <Target size={20} className="text-emerald-400" />
-            <h2 className="text-lg font-semibold">Qaza Backlog</h2>
+            <h2 className="text-lg font-semibold">Qaza Breakdown</h2>
           </div>
 
           <div className="space-y-4">
