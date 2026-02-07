@@ -177,80 +177,53 @@ export default function LogPage() {
   };
 
   const handleSaveAda = async () => {
-    if (!userId) {
-      setSaveMessage('Unable to save: User ID not found');
-      return;
-    }
+  if (!userId) {
+    setSaveMessage('Unable to save: User ID not found');
+    return;
+  }
 
-    setSaving(true);
-    setSaveMessage(null);
+  setSaving(true);
+  setSaveMessage(null);
 
-    try {
-      const dataToSave = adaPrayers.map(prayer => ({
-        prayer_name: prayer.name.toLowerCase(),
-        completed: prayer.completed,
-        missed: prayer.missed,
-        reason: prayer.missed ? (prayer.reason === 'Other' ? prayer.otherReason : prayer.reason) : undefined,
+  try {
+    // Convert to correct format for FastAPI
+    const prayersToSave = adaPrayers
+      .filter(prayer => prayer.completed || prayer.missed) // Only send prayers that have a status
+      .map(prayer => ({
+        prayer: prayer.name.toLowerCase(), // ✅ Changed from prayer_name
+        status: prayer.completed ? 'completed' : 'missed', // ✅ Changed from booleans
+        reason: prayer.missed && prayer.reason ? 
+          (prayer.reason === 'Other' ? prayer.otherReason : prayer.reason) : 
+          undefined,
       }));
 
-      await api.logAdaPrayer(userId, { prayers: dataToSave });
-      setSaveMessage('Ada prayers saved successfully!');
-
-      setAdaPrayers([
-        { name: 'Fajr', completed: false, missed: false },
-        { name: 'Dhuhr', completed: false, missed: false },
-        { name: 'Asr', completed: false, missed: false },
-        { name: 'Maghrib', completed: false, missed: false },
-        { name: 'Isha', completed: false, missed: false },
-      ]);
-      setExpandedPrayer(null);
-
-      setTimeout(() => setSaveMessage(null), 3000);
-    } catch (error) {
-      console.error('Failed to save ada prayers', error);
-      setSaveMessage('Failed to save prayers. Please try again.');
-    } finally {
+    if (prayersToSave.length === 0) {
+      setSaveMessage('Please mark at least one prayer');
       setSaving(false);
-    }
-  };
-
-  const handleSaveQaza = async () => {
-    if (!userId) {
-      setSaveMessage('Unable to save: User ID not found');
       return;
     }
 
-    setSaving(true);
-    setSaveMessage(null);
+    await api.logAdaPrayer(userId, { prayers: prayersToSave });
+    setSaveMessage('Ada prayers saved successfully!');
 
-    try {
-      const dataToSave = {
-        fajr: qazaPrayers.find(p => p.name === 'Fajr')?.count || 0,
-        dhuhr: qazaPrayers.find(p => p.name === 'Dhuhr')?.count || 0,
-        asr: qazaPrayers.find(p => p.name === 'Asr')?.count || 0,
-        maghrib: qazaPrayers.find(p => p.name === 'Maghrib')?.count || 0,
-        isha: qazaPrayers.find(p => p.name === 'Isha')?.count || 0,
-      };
+    // Reset state
+    setAdaPrayers([
+      { name: 'Fajr', completed: false, missed: false },
+      { name: 'Dhuhr', completed: false, missed: false },
+      { name: 'Asr', completed: false, missed: false },
+      { name: 'Maghrib', completed: false, missed: false },
+      { name: 'Isha', completed: false, missed: false },
+    ]);
+    setExpandedPrayer(null);
 
-      await api.logQazaPrayer(userId, dataToSave);
-      setSaveMessage('Qaza prayers saved successfully!');
-
-      setQazaPrayers([
-        { name: 'Fajr', count: 0 },
-        { name: 'Dhuhr', count: 0 },
-        { name: 'Asr', count: 0 },
-        { name: 'Maghrib', count: 0 },
-        { name: 'Isha', count: 0 },
-      ]);
-
-      setTimeout(() => setSaveMessage(null), 3000);
-    } catch (error) {
-      console.error('Failed to save qaza prayers', error);
-      setSaveMessage('Failed to save prayers. Please try again.');
-    } finally {
-      setSaving(false);
-    }
-  };
+    setTimeout(() => setSaveMessage(null), 3000);
+  } catch (error) {
+    console.error('Failed to save ada prayers', error);
+    setSaveMessage('Failed to save prayers. Please try again.');
+  } finally {
+    setSaving(false);
+  }
+};
 
   const handleSaveClear = async () => {
     if (!userId) {
