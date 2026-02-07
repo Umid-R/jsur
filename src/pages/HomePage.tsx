@@ -88,12 +88,12 @@ export default function HomePage({
         <div className="bg-gradient-to-br from-teal-900/40 to-teal-800/20 rounded-3xl p-8 border border-teal-700/40 shadow-lg hover:shadow-xl transition-shadow">
           <div className="text-center">
             <div className="inline-block bg-emerald-500/20 px-3 py-1 rounded-full mb-4">
-              <p className="text-emerald-300 text-xs font-semibold">Qaza Backlog</p>
+              <p className="text-emerald-300 text-xs font-semibold">Total</p>
             </div>
             <h2 className="text-7xl font-bold mb-2">
               {totalQazaRemaining ?? '—'}
             </h2>
-            <p className="text-gray-400 text-sm mb-8">prayers remaining</p>
+            <p className="text-gray-400 text-sm mb-8">qazas remaining</p>
 
             <div className="h-px bg-teal-700/40 mb-8"></div>
 
@@ -179,7 +179,7 @@ export default function HomePage({
           <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-2xl p-6 border border-teal-700/30">
             <div className="flex items-center gap-2 mb-6">
               <TrendingUp size={20} className="text-emerald-400" />
-              <h3 className="text-lg font-semibold">Your Journey</h3>
+              <h3 className="text-lg font-semibold">Qazas Breakdown</h3>
             </div>
 
             <div className="space-y-3">
