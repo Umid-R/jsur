@@ -14,8 +14,23 @@ export default function HomePage({
   const [weeklyActivity, setWeeklyActivity] = useState<WeeklyActivity[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [quote, setQuote] = useState<string | null>(null);
+  const [quoteLoading, setQuoteLoading] = useState(true);
+
 
   useEffect(() => {
+    async function fetchQuote() {
+      try {
+        const quoteData = await api.getQuote();
+        setQuote(quoteData.quote);
+      } catch (err) {
+        console.error('Failed to fetch quote', err);
+        setQuote('And whoever fears Allah — He will make for him ease in his affairs.');
+      } finally {
+        setQuoteLoading(false);
+      }
+    }
+
     async function fetchData() {
       initTelegramApp();
       const userId = getTelegramUserId();
@@ -83,6 +98,16 @@ export default function HomePage({
           <h1 className="text-3xl font-semibold mb-1">Assalamu Alaikum</h1>
           <p className="text-gray-400 text-base">Let's make up what we missed</p>
         </header>
+
+        <div className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 rounded-2xl p-6 border border-emerald-700/30">
+              {quoteLoading ? (
+          <div className="text-center text-gray-400 italic">Loading inspiration...</div>
+            ) : (
+          <p className="text-center text-emerald-100 text-base leading-relaxed italic">
+          {quote}
+          </p>
+          )}
+        </div>
 
         {/* QAZA BACKLOG */}
         <div className="bg-gradient-to-br from-teal-900/40 to-teal-800/20 rounded-3xl p-8 border border-teal-700/40 shadow-lg hover:shadow-xl transition-shadow">
