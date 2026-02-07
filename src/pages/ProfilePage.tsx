@@ -6,8 +6,6 @@ import { api, PrayerStats } from '../services/api';
 export default function ProfilePage() {
   const [prayerStats, setPrayerStats] = useState<PrayerStats | null>(null);
   const [userName, setUserName] = useState('User');
-  const [quote, setQuote] = useState<string | null>(null);
-  const [quoteLoading, setQuoteLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,20 +36,7 @@ export default function ProfilePage() {
       }
     }
 
-    async function fetchQuote() {
-      try {
-        const quoteData = await api.getQuote();
-        setQuote(quoteData.quote);
-      } catch (err) {
-        console.error('Failed to fetch quote', err);
-        setQuote('And whoever fears Allah — He will make for him ease in his affairs.');
-      } finally {
-        setQuoteLoading(false);
-      }
-    }
-
     fetchData();
-    fetchQuote();
   }, []);
 
   const totalPrayersLogged = prayerStats?.total_prayers_logged ?? 0;
@@ -111,16 +96,6 @@ export default function ProfilePage() {
               <p className="text-xs text-gray-400 uppercase font-semibold">Day Streak</p>
             </div>
           </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 rounded-2xl p-6 border border-emerald-700/30">
-          {quoteLoading ? (
-            <div className="text-center text-gray-400 italic">Loading inspiration...</div>
-          ) : (
-            <p className="text-center text-emerald-100 text-base leading-relaxed italic">
-              {quote}
-            </p>
-          )}
         </div>
 
         <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-2xl p-6 border border-teal-700/30">
