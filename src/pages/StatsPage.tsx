@@ -131,7 +131,7 @@ export default function StatsPage() {
         <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-2xl p-6 border border-teal-700/30">
           <div className="flex items-center gap-2 mb-6">
             <Target size={20} className="text-emerald-400" />
-            <h2 className="text-lg font-semibold">Qaza Breakdown</h2>
+            <h2 className="text-lg font-semibold">Qazas Breakdown</h2>
           </div>
 
           <div className="space-y-4">
@@ -153,7 +153,7 @@ export default function StatsPage() {
         <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-2xl p-6 border border-teal-700/30">
           <div className="flex items-center gap-2 mb-6">
             <TrendingDown size={20} className="text-emerald-400" />
-            <h2 className="text-lg font-semibold">Qaza Trend</h2>
+            <h2 className="text-lg font-semibold">Qazas Trend</h2>
           </div>
 
           <div className="relative" style={{ height: `${chartHeight}px` }}>
